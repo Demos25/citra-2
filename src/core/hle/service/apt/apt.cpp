@@ -42,7 +42,11 @@ static ScreencapPostPermission screen_capture_post_permission;
 /// Parameter data to be returned in the next call to Glance/ReceiveParameter
 static MessageParameter next_parameter;
 
+/// stores the state for CancelParameter
+static bool cancelled = false;
+
 void SendParameter(const MessageParameter& parameter) {
+    cancelled = false;
     next_parameter = parameter;
     // Signal the event to let the application know that a new parameter is ready to be read
     parameter_event->Signal();
@@ -222,6 +226,12 @@ void ReceiveParameter(Service::Interface* self) {
             buffer_size, static_buff_size);
 
     IPC::RequestBuilder rb = rp.MakeBuilder(4, 4);
+
+    if (cancelled) {
+    rb.Push<u32>(-1);
+    return;
+    }
+	
     rb.Push(RESULT_SUCCESS); // No error
     rb.Push(next_parameter.sender_id);
     rb.Push(next_parameter.signal); // Signal type
@@ -252,6 +262,12 @@ void GlanceParameter(Service::Interface* self) {
             buffer_size, static_buff_size);
 
     IPC::RequestBuilder rb = rp.MakeBuilder(4, 4);
+
+    if (cancelled) {
+    rb.Push<u32>(-1);
+    return;
+    }
+	
     rb.Push(RESULT_SUCCESS); // No error
     rb.Push(next_parameter.sender_id);
     rb.Push(next_parameter.signal); // Signal type
@@ -276,6 +292,7 @@ void CancelParameter(Service::Interface* self) {
     u32 check_receiver = rp.Pop<u32>();
     u32 receiver_appid = rp.Pop<u32>();
     IPC::RequestBuilder rb = rp.MakeBuilder(2, 0);
+    cancelled = true;
     rb.Push(RESULT_SUCCESS); // No error
     rb.Push(true);           // Set to Success
 
@@ -640,6 +657,16 @@ void CheckNew3DS(Service::Interface* self) {
     PTM::CheckNew3DS(rb);
 
     LOG_WARNING(Service_APT, "(STUBBED) called");
+}
+
+void ReplySleepQuery(Service::Interface* self) {
+	IPC::RequestParser rp(Kernel::GetCommandBuffer(), 0x3E, 2, 0); // 0x003E0080
+	IPC::RequestBuilder rb = rp.MakeBuilder(2, 0);
+
+	u32 app_id = rp.Pop<u32>();
+	rb.Push(RESULT_SUCCESS);                     // No error
+	rb.Push(static_cast<u32>(SignalType::None)); // Signal type
+    LOG_WARNING(Service_APT, "(STUBBED) ReplySleepQuery called");
 }
 
 void Init() {
