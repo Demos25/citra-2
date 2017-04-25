@@ -10,6 +10,7 @@ set(SRCS
             configuration/configure_general.cpp
             configuration/configure_graphics.cpp
             configuration/configure_input.cpp
+            configuration/configure_input_widget.cpp
             configuration/configure_system.cpp
             debugger/callstack.cpp
             debugger/disassembler.cpp
@@ -42,6 +43,7 @@ set(HEADERS
             configuration/configure_general.h
             configuration/configure_graphics.h
             configuration/configure_input.h
+            configuration/configure_input_widget.cpp
             configuration/configure_system.h
             debugger/callstack.h
             debugger/disassembler.h
