@@ -32,7 +32,7 @@ ResultStatus AppLoader_NCSD::TryGetNCCHOffset(u32& offset) {
 ResultStatus AppLoader_NCSD::Load() {
     return ncch_loader->Load();
 }
-boost::optional<u32> AppLoader_NCSD::LoadKernelSystemMode() {
+std::pair<boost::optional<u32>, ResultStatus> AppLoader_NCSD::LoadKernelSystemMode() {
     return ncch_loader->LoadKernelSystemMode();
 }
 ResultStatus AppLoader_NCSD::ReadCode(std::vector<u8>& buffer) {
